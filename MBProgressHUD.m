@@ -718,9 +718,16 @@ static const CGFloat MBDefaultDetailsLabelFontSize = 12.f;
 - (void)setProgress:(float)progress {
     if (progress != _progress) {
         _progress = progress;
-        UIView *indicator = self.indicator;
-        if ([indicator respondsToSelector:@selector(setProgress:)]) {
-            [(id)indicator setValue:@(self.progress) forKey:@"progress"];
+        dispatch_block_t block = ^{
+            UIView *indicator = self.indicator;
+            if ([indicator respondsToSelector:@selector(setProgress:)]) {
+                [(id)indicator setValue:@(self.progress) forKey:@"progress"];
+            }
+        };
+        if ([NSThread isMainThread]) {
+            block();
+        } else {
+            dispatch_async(dispatch_get_main_queue(), block);
         }
     }
 }
@@ -862,7 +869,14 @@ static const CGFloat MBDefaultDetailsLabelFontSize = 12.f;
 - (void)setProgress:(float)progress {
     if (progress != _progress) {
         _progress = progress;
-        [self setNeedsDisplay];
+        dispatch_block_t block = ^{
+            [self setNeedsDisplay];
+        };
+        if ([NSThread isMainThread]) {
+            block();
+        } else {
+            dispatch_async(dispatch_get_main_queue(), block);
+        }
     }
 }
 
@@ -984,7 +998,14 @@ static const CGFloat MBDefaultDetailsLabelFontSize = 12.f;
 - (void)setProgress:(float)progress {
     if (progress != _progress) {
         _progress = progress;
-        [self setNeedsDisplay];
+        dispatch_block_t block = ^{
+            [self setNeedsDisplay];
+        };
+        if ([NSThread isMainThread]) {
+            block();
+        } else {
+            dispatch_async(dispatch_get_main_queue(), block);
+        }
     }
 }
 
